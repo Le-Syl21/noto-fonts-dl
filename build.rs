@@ -87,6 +87,12 @@ fn download_font(filename: &str) -> Vec<u8> {
         return download_cjk_font(filename);
     }
 
+    // Color Emoji — hosted in the noto-emoji repo, not noto-fonts
+    if filename.contains("Emoji") {
+        let url = "https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf";
+        return download_url(url);
+    }
+
     // Try Google Fonts CSS API first (gives optimized/subset fonts)
     let font_name = filename
         .replace("-VF.ttf", "")

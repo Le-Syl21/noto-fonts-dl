@@ -108,6 +108,15 @@ The font data is standard TrueType/OpenType — it works with any library that a
 | `bo` | Tibetan | Noto Serif Tibetan |
 | `ur` | Urdu | Noto Nastaliq Urdu |
 
+### Symbols & Emoji
+
+| Feature | Description | Font |
+|---------|-------------|------|
+| `zsye` | Color Emoji | Noto Color Emoji |
+| `zsym` | Symbols (monochrome) | Noto Sans Symbols |
+
+The feature codes `zsye` and `zsym` come from [ISO 15924](https://en.wikipedia.org/wiki/ISO_15924) script codes. **Zsye** stands for "Symbols (emoji variant)" — the standard script subtag for color emoji presentation. **Zsym** stands for "Symbols" — for monochrome symbol glyphs. These are not language codes but script codes used in [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) to distinguish emoji rendering from plain text symbols.
+
 ### Convenience Groups
 
 | Feature | Includes |
