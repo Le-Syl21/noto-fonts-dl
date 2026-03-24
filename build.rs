@@ -28,13 +28,20 @@ fn main() {
             continue;
         }
 
-        let cache_path = std::path::Path::new(&out_dir).join(filename);
+        // Use feature-specific cache key for CJK (they all share the same
+        // filename in fonts.json but resolve to different region-specific files)
+        let cache_name = if filename.contains("CJK") {
+            format!("{}_{}", feature, filename)
+        } else {
+            filename.clone()
+        };
+        let cache_path = std::path::Path::new(&out_dir).join(&cache_name);
         let data = if cache_path.exists() {
-            eprintln!("cargo:warning=Using cached: {}", filename);
+            eprintln!("cargo:warning=Using cached: {} ({})", filename, feature);
             std::fs::read(&cache_path).unwrap()
         } else {
-            eprintln!("cargo:warning=Downloading font: {}", filename);
-            let data = download_font(filename);
+            eprintln!("cargo:warning=Downloading font: {} ({})", filename, feature);
+            let data = download_font(feature, filename);
             std::fs::write(&cache_path, &data).unwrap();
             eprintln!("cargo:warning=Downloaded {} ({} bytes)", filename, data.len());
             data
@@ -81,10 +88,10 @@ fn main() {
     std::fs::write(&bundle_path, &compressed).unwrap();
 }
 
-fn download_font(filename: &str) -> Vec<u8> {
+fn download_font(feature: &str, filename: &str) -> Vec<u8> {
     // CJK fonts need special handling — use SubsetOTF from noto-cjk repo
     if filename.contains("CJK") {
-        return download_cjk_font(filename);
+        return download_cjk_font(feature);
     }
 
     // Color Emoji — hosted in the noto-emoji repo, not noto-fonts
@@ -113,28 +120,15 @@ fn download_font(filename: &str) -> Vec<u8> {
     download_url(&url)
 }
 
-fn download_cjk_font(_filename: &str) -> Vec<u8> {
-    // Map CJK-Regular.ttc references to SubsetOTF individual files
+fn download_cjk_font(feature: &str) -> Vec<u8> {
+    // Map feature code to region-specific SubsetOTF file.
     // The fonts.json maps ja/ko/zh/zh_tw all to NotoSansCJK-Regular.ttc
-    // but we download region-specific SubsetOTF instead
-    let feature = std::env::vars()
-        .filter(|(k, _)| k.starts_with("CARGO_FEATURE_"))
-        .find(|(k, _)| {
-            let f = k.replace("CARGO_FEATURE_", "").to_lowercase();
-            matches!(f.as_str(), "ja" | "ko" | "zh" | "zh_tw")
-        });
-
+    // but we download the correct region-specific SubsetOTF instead.
     let (region, otf_name) = match feature {
-        Some((k, _)) => {
-            let f = k.replace("CARGO_FEATURE_", "").to_lowercase();
-            match f.as_str() {
-                "ja" => ("JP", "NotoSansJP-Regular.otf"),
-                "ko" => ("KR", "NotoSansKR-Regular.otf"),
-                "zh_tw" => ("TC", "NotoSansTC-Regular.otf"),
-                _ => ("SC", "NotoSansSC-Regular.otf"),
-            }
-        }
-        None => ("SC", "NotoSansSC-Regular.otf"),
+        "ja" => ("JP", "NotoSansJP-Regular.otf"),
+        "ko" => ("KR", "NotoSansKR-Regular.otf"),
+        "zh_tw" => ("TC", "NotoSansTC-Regular.otf"),
+        _ => ("SC", "NotoSansSC-Regular.otf"),
     };
 
     let url = format!("{}{}/{}", NOTO_CJK_GITHUB_BASE, region, otf_name);
