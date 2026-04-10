@@ -3,8 +3,7 @@ use std::sync::Arc;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([400.0, 300.0]),
+        viewport: egui::ViewportBuilder::default(),
         ..Default::default()
     };
 
@@ -52,6 +51,25 @@ impl eframe::App for HelloApp {
             ui.label("Bengali: হ্যালো বিশ্ব!");
             ui.label("Japanese: こんにちは世界！");
             ui.label("Chinese: 你好世界！");
+            ui.separator();
+            ui.heading("Emoji Test");
+            ui.label("Faces: 😀😂🥹😍🤩🥳😎🤔😴🫠");
+            ui.label("Hands: 👋🤝👏🙌🤞✌️👍👎🫶🤙");
+            ui.label("Animals: 🐶🐱🐻🦊🐼🐨🦁🐸🦋🐝");
+            ui.label("Food: 🍕🍔🌮🍣🍩🍪🍰🧁🍫🥐");
+            ui.label("Travel: 🚀✈️🚂🏔️🌋🏖️🗼🎡⛵🛸");
+            ui.label("Symbols: ❤️🧡💛💚💙💜🖤🤍💯✨");
+            ui.label("Flags: 🇫🇷🇯🇵🇰🇷🇨🇳🇮🇳🇧🇷🇺🇸🇬🇧🇩🇪🇪🇸");
+            ui.separator();
+            ui.heading("Symbols Test (zsym — N&B)");
+            ui.label("Arrows: ← → ↑ ↓ ↔ ↕ ⇐ ⇒ ⇑ ⇓");
+            ui.label("Math: ∞ ∑ √ ∫ ≈ ≠ ≤ ≥ ± ÷");
+            ui.label("Misc: ☀ ☁ ☂ ☃ ★ ☆ ♠ ♣ ♥ ♦");
+            ui.label("Music: ♩ ♪ ♫ ♬ ♭ ♮ ♯");
+            ui.label("Dingbats: ✓ ✗ ✠ ✡ ✢ ✣ ✤ ✥ ✦ ✧");
+            ui.label("Zodiac: ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓");
+            ui.label("Chess: ♔ ♕ ♖ ♗ ♘ ♙ ♚ ♛ ♜ ♝ ♞ ♟");
+            ui.label("Braille: ⠁ ⠃ ⠉ ⠙ ⠑ ⠋ ⠛ ⠝ ⠏ ⠟");
         });
     }
 }

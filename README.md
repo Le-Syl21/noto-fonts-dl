@@ -129,6 +129,29 @@ The feature codes `zsye` and `zsym` come from [ISO 15924](https://en.wikipedia.o
 
 The crate supports 134 scripts total, including historical and rare writing systems (Cuneiform, Egyptian Hieroglyphs, Runic, Gothic, etc.). See `Cargo.toml` for the full list.
 
+## Color Emoji Limitations
+
+The `zsye` feature downloads **Noto Color Emoji**, a CBDT/CBLC bitmap font (pre-rendered color images embedded at fixed sizes). Most Rust GUI text rasterizers — including egui's `epaint`/`ab_glyph` pipeline — only support **outline** fonts (vector glyphs defined by Bézier curves). They cannot render bitmap color tables, so color emoji will appear as blank squares or monochrome fallbacks.
+
+The `zsym` feature (Noto Sans Symbols) works correctly everywhere since it uses standard vector outlines. It covers arrows, math symbols, dingbats, zodiac signs, chess pieces, musical notation, braille, and other monochrome Unicode symbols.
+
+### Why this happens
+
+| Font | Format | egui | iced | cosmic-text |
+|------|--------|------|------|-------------|
+| Noto Color Emoji (`zsye`) | CBDT/CBLC bitmap | Not supported | Not supported | Not supported |
+| Noto Sans Symbols (`zsym`) | TrueType outlines | Works | Works | Works |
+
+The color emoji spec (CBDT/CBLC) stores pre-rendered PNG bitmaps at specific sizes. Rendering them requires extracting the bitmap from the font tables and blitting it as a texture — standard glyph rasterizers (ab_glyph, fontdue, rusttype, swash) skip these tables entirely.
+
+### Alternatives for color emoji rendering
+
+- **[emojis](https://crates.io/crates/emojis) + custom texture atlas**: Render emoji as images/sprites instead of font glyphs. Load Noto Color Emoji PNGs from [noto-emoji](https://github.com/googlefonts/noto-emoji/tree/main/png) and display them as `egui::Image` inline.
+- **[cosmic-text](https://crates.io/crates/cosmic-text) + [swash](https://crates.io/crates/swash)**: `swash` has experimental CBDT rasterization support — the most promising Rust-native path for color emoji rendering.
+- **Web-based renderers**: If targeting WebAssembly, the browser's native text renderer handles color emoji natively via `<canvas>` or DOM text.
+- **[resvg](https://crates.io/crates/resvg)**: For SVG-based emoji fonts (like Noto Emoji SVG), `resvg` can rasterize individual glyphs to images.
+- **System font fallback**: On desktop, the OS text stack (DirectWrite, CoreText, HarfBuzz+FreeType) supports color emoji natively. Frameworks that delegate to the system shaper (e.g., GTK/Qt bindings) will render them correctly.
+
 ## How It Works
 
 1. **Build time**: `build.rs` reads `fonts.json` (a mapping from language codes to Noto font filenames, derived from Android's official configuration)
