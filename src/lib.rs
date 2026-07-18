@@ -16,9 +16,9 @@
 //! }
 //! ```
 
+use std::io::Read;
 use std::sync::OnceLock;
 use xz2::read::XzDecoder;
-use std::io::Read;
 
 /// The compressed font bundle, embedded at compile time
 const FONT_BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/fonts.bundle.xz"));
@@ -39,23 +39,25 @@ pub fn load_fonts() -> &'static Vec<Font> {
         // Decompress XZ
         let mut decoder = XzDecoder::new(FONT_BUNDLE);
         let mut raw = Vec::new();
-        decoder.read_to_end(&mut raw).expect("Failed to decompress font bundle");
+        decoder
+            .read_to_end(&mut raw)
+            .expect("Failed to decompress font bundle");
 
         // Parse our minimal format
         let mut pos = 0;
-        let count = u32::from_le_bytes(raw[pos..pos+4].try_into().unwrap()) as usize;
+        let count = u32::from_le_bytes(raw[pos..pos + 4].try_into().unwrap()) as usize;
         pos += 4;
 
         let mut fonts = Vec::with_capacity(count);
         for _ in 0..count {
-            let name_len = u32::from_le_bytes(raw[pos..pos+4].try_into().unwrap()) as usize;
+            let name_len = u32::from_le_bytes(raw[pos..pos + 4].try_into().unwrap()) as usize;
             pos += 4;
-            let name = String::from_utf8(raw[pos..pos+name_len].to_vec()).unwrap();
+            let name = String::from_utf8(raw[pos..pos + name_len].to_vec()).unwrap();
             pos += name_len;
 
-            let data_len = u32::from_le_bytes(raw[pos..pos+4].try_into().unwrap()) as usize;
+            let data_len = u32::from_le_bytes(raw[pos..pos + 4].try_into().unwrap()) as usize;
             pos += 4;
-            let data = raw[pos..pos+data_len].to_vec();
+            let data = raw[pos..pos + data_len].to_vec();
             pos += data_len;
 
             fonts.push((name, data));

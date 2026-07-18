@@ -8,7 +8,8 @@ const FONTS_JSON: &str = include_str!("fonts.json");
 const GOOGLE_FONTS_CSS: &str = "https://fonts.googleapis.com/css2?family=";
 
 /// Fallback: direct download from notofonts GitHub repo
-const NOTO_GITHUB_BASE: &str = "https://github.com/notofonts/noto-fonts/raw/main/unhinted/slim-variable-ttf/";
+const NOTO_GITHUB_BASE: &str =
+    "https://github.com/notofonts/noto-fonts/raw/main/unhinted/slim-variable-ttf/";
 const NOTO_CJK_GITHUB_BASE: &str = "https://github.com/notofonts/noto-cjk/raw/main/Sans/SubsetOTF/";
 
 fn main() {
@@ -16,8 +17,8 @@ fn main() {
     let bundle_path = std::path::Path::new(&out_dir).join("fonts.bundle.xz");
 
     // Parse fonts.json: feature_name -> font_filename
-    let font_map: HashMap<String, String> = serde_json::from_str(FONTS_JSON)
-        .expect("Failed to parse fonts.json");
+    let font_map: HashMap<String, String> =
+        serde_json::from_str(FONTS_JSON).expect("Failed to parse fonts.json");
 
     // Collect fonts for enabled features
     let mut fonts_data: Vec<(String, Vec<u8>)> = Vec::new();
@@ -43,7 +44,11 @@ fn main() {
             eprintln!("cargo:warning=Downloading font: {} ({})", filename, feature);
             let data = download_font(feature, filename);
             std::fs::write(&cache_path, &data).unwrap();
-            eprintln!("cargo:warning=Downloaded {} ({} bytes)", filename, data.len());
+            eprintln!(
+                "cargo:warning=Downloaded {} ({} bytes)",
+                filename,
+                data.len()
+            );
             data
         };
 
@@ -82,8 +87,11 @@ fn main() {
     encoder.write_all(&raw).unwrap();
     let compressed = encoder.finish().unwrap();
 
-    eprintln!("cargo:warning=Compressed bundle size: {} bytes (ratio: {:.0}%)",
-        compressed.len(), compressed.len() as f64 / raw.len() as f64 * 100.0);
+    eprintln!(
+        "cargo:warning=Compressed bundle size: {} bytes (ratio: {:.0}%)",
+        compressed.len(),
+        compressed.len() as f64 / raw.len() as f64 * 100.0
+    );
 
     std::fs::write(&bundle_path, &compressed).unwrap();
 }
@@ -141,10 +149,13 @@ fn try_google_fonts(css_url: &str) -> Result<Vec<u8>, String> {
         .call()
         .map_err(|e| format!("CSS fetch failed: {}", e))?;
 
-    let css = resp.into_string().map_err(|e| format!("CSS read failed: {}", e))?;
+    let css = resp
+        .into_string()
+        .map_err(|e| format!("CSS read failed: {}", e))?;
 
     // Extract first .ttf URL from CSS
-    let url = css.split("url(")
+    let url = css
+        .split("url(")
         .nth(1)
         .and_then(|s| s.split(')').next())
         .ok_or_else(|| "No font URL in CSS".to_string())?;
@@ -158,7 +169,8 @@ fn download_url(url: &str) -> Vec<u8> {
         .call()
         .unwrap_or_else(|e| panic!("Failed to download {}: {}", url, e));
     let mut data = Vec::new();
-    resp.into_reader().read_to_end(&mut data)
+    resp.into_reader()
+        .read_to_end(&mut data)
         .unwrap_or_else(|e| panic!("Failed to read {}: {}", url, e));
     data
 }

@@ -25,7 +25,8 @@ fn main() -> eframe::Result<()> {
                     name.clone(),
                     Arc::new(egui::FontData::from_owned(data.clone())),
                 );
-                fonts.families
+                fonts
+                    .families
                     .entry(egui::FontFamily::Proportional)
                     .or_default()
                     .push(name.clone());
