@@ -11,7 +11,7 @@
 //!
 //! ```no_run
 //! let fonts = noto_fonts_dl::load_fonts();
-//! for (name, data) in &fonts {
+//! for (name, data) in fonts {
 //!     println!("{}: {} bytes", name, data.len());
 //! }
 //! ```
