@@ -56,7 +56,7 @@ fn main() {
     }
 
     if fonts_data.is_empty() {
-        std::fs::write(&bundle_path, &[]).unwrap();
+        std::fs::write(&bundle_path, []).unwrap();
         return;
     }
 
