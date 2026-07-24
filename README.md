@@ -2,6 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/noto-fonts-dl.svg)](https://crates.io/crates/noto-fonts-dl)
 [![License: MIT/Apache-2.0](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
+[![Discord](https://img.shields.io/badge/Discord-Le--Syl21%20Tools-5865F2?logo=discord&logoColor=white)](https://discord.gg/T37DYHmt2j)
 
 Download and embed [Google Noto fonts](https://fonts.google.com/noto) at build time with Cargo feature flags. **134 languages/scripts supported** — just enable the ones you need.
 
@@ -10,6 +11,12 @@ Download and embed [Google Noto fonts](https://fonts.google.com/noto) at build t
 - Decompressed in memory at runtime (~0.5s for the largest bundles)
 - Zero font files stored in the crate itself
 - Language-to-font mapping derived from [Android's official Noto configuration](https://github.com/notofonts/noto-fonts)
+
+## Community & support
+
+Questions, bug reports, beta testing, or just want to chat? Join the Discord:
+
+[![Discord](https://img.shields.io/badge/Discord-Le--Syl21%20Tools-5865F2?logo=discord&logoColor=white)](https://discord.gg/T37DYHmt2j)
 
 ## Quick Start
 

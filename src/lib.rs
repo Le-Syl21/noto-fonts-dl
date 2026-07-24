@@ -15,6 +15,10 @@
 //!     println!("{}: {} bytes", name, data.len());
 //! }
 //! ```
+//!
+//! # Community & support
+//!
+//! Questions, bugs, beta testing — join the Discord: <https://discord.gg/T37DYHmt2j>
 
 use std::io::Read;
 use std::sync::OnceLock;
