@@ -1,6 +1,6 @@
 [package]
 name = "noto-fonts-dl"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 description = "Download and embed Google Noto fonts at build time with Cargo feature flags. 134 languages/scripts supported. Fonts compressed with XZ, decompressed at runtime."
 license = "MIT OR Apache-2.0"
@@ -174,9 +174,9 @@ xz2 = "0.1"
 
 [build-dependencies]
 xz2 = "0.1"
-ureq = "2"
+ureq = "3"
 serde_json = "1"
 
 [dev-dependencies]
-eframe = "0.31"
-egui = "0.31"
+eframe = "0.36"
+egui = "0.36"

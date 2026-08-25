@@ -41,8 +41,8 @@ fn main() -> eframe::Result<()> {
 struct HelloApp;
 
 impl eframe::App for HelloApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::ScrollArea::vertical().show(ui, |ui| {
             ui.heading("noto-fonts-dl POC");
             ui.separator();
             ui.label("English: Hello World!");
@@ -71,6 +71,12 @@ impl eframe::App for HelloApp {
             ui.label("Zodiac: ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓");
             ui.label("Chess: ♔ ♕ ♖ ♗ ♘ ♙ ♚ ♛ ♜ ♝ ♞ ♟");
             ui.label("Braille: ⠁ ⠃ ⠉ ⠙ ⠑ ⠋ ⠛ ⠝ ⠏ ⠟");
+            ui.separator();
+            ui.heading("Symbols 2 Test (zsym2 — N&B)");
+            ui.label("Ballot: ☐ ☑ ☒");
+            ui.label("Technical: ⏻ ⏼ ⏽ ⌨ ⌘ ⌥ ⎋ ⏏");
+            ui.label("Clocks: ⏰ ⏱ ⏲ ⏳");
+            ui.label("Weather: ☔ ☕ ⛄ ⛅ ⛈");
         });
     }
 }

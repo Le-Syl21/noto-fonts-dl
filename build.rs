@@ -155,13 +155,17 @@ fn download_cjk_font(feature: &str) -> Vec<u8> {
 }
 
 fn try_google_fonts(css_url: &str) -> Result<Vec<u8>, String> {
-    let resp = ureq::get(css_url)
-        .set("User-Agent", "Mozilla/5.0")
+    // Google Fonts serves a different CSS per user agent — it decides which
+    // font format to point at from what it thinks the client supports. Ask as
+    // a browser or it answers with woff2, which we cannot use.
+    let mut resp = ureq::get(css_url)
+        .header("User-Agent", "Mozilla/5.0")
         .call()
         .map_err(|e| format!("CSS fetch failed: {}", e))?;
 
     let css = resp
-        .into_string()
+        .body_mut()
+        .read_to_string()
         .map_err(|e| format!("CSS read failed: {}", e))?;
 
     // Extract first .ttf URL from CSS
@@ -176,11 +180,17 @@ fn try_google_fonts(css_url: &str) -> Result<Vec<u8>, String> {
 
 fn download_url(url: &str) -> Vec<u8> {
     eprintln!("cargo:warning=  GET {}", url);
-    let resp = ureq::get(url)
+    let mut resp = ureq::get(url)
         .call()
         .unwrap_or_else(|e| panic!("Failed to download {}: {}", url, e));
     let mut data = Vec::new();
-    resp.into_reader()
+    // ureq 3 caps a response body at 10 MB unless told otherwise. The CJK
+    // fonts run past that, so lift the limit rather than truncate a font into
+    // a file that looks downloaded and is not.
+    resp.body_mut()
+        .with_config()
+        .limit(64 * 1024 * 1024)
+        .reader()
         .read_to_end(&mut data)
         .unwrap_or_else(|e| panic!("Failed to read {}: {}", url, e));
     data
