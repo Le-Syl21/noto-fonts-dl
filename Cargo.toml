@@ -1,6 +1,6 @@
 [package]
 name = "noto-fonts-dl"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "Download and embed Google Noto fonts at build time with Cargo feature flags. 134 languages/scripts supported. Fonts compressed with XZ, decompressed at runtime."
 license = "MIT OR Apache-2.0"
@@ -163,6 +163,7 @@ yiii = []     # Yi
 zanb = []     # Zanabazar Square
 zsye = []     # Color Emoji
 zsym = []     # Symbols
+zsym2 = []    # Symbols 2 (boxes, technical, dingbats)
 # Convenience groups
 all-common = ["ar", "bn", "hi", "ja", "ko", "zh", "zh_tw", "he", "th"]
 all-indic = ["hi", "bn", "ta", "te", "kn", "ml", "gu", "pa", "or", "si"]

@@ -121,6 +121,7 @@ The font data is standard TrueType/OpenType — it works with any library that a
 |---------|-------------|------|
 | `zsye` | Color Emoji | Noto Color Emoji |
 | `zsym` | Symbols (monochrome) | Noto Sans Symbols |
+| `zsym2` | Symbols 2 (monochrome) | Noto Sans Symbols 2 |
 
 The feature codes `zsye` and `zsym` come from [ISO 15924](https://en.wikipedia.org/wiki/ISO_15924) script codes. **Zsye** stands for "Symbols (emoji variant)" — the standard script subtag for color emoji presentation. **Zsym** stands for "Symbols" — for monochrome symbol glyphs. These are not language codes but script codes used in [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) to distinguish emoji rendering from plain text symbols.
 
@@ -142,12 +143,15 @@ The `zsye` feature downloads **Noto Color Emoji**, a CBDT/CBLC bitmap font (pre-
 
 The `zsym` feature (Noto Sans Symbols) works correctly everywhere since it uses standard vector outlines. It covers arrows, math symbols, dingbats, zodiac signs, chess pieces, musical notation, braille, and other monochrome Unicode symbols.
 
+`zsym2` (Noto Sans Symbols 2) is a **different set, not a newer version** — the two barely overlap, so pick by the glyphs you need rather than by the number. Symbols 2 carries Miscellaneous Symbols and Miscellaneous Technical: ballot boxes (`☐` `☑`), the power symbol (`⏻`), keyboard and clock glyphs, and a much wider dingbat range — 2655 codepoints against 840. Several of those are missing from the fonts a GUI toolkit bundles by default, which is usually why you end up needing it.
+
 ### Why this happens
 
 | Font | Format | egui | iced | cosmic-text |
 |------|--------|------|------|-------------|
 | Noto Color Emoji (`zsye`) | CBDT/CBLC bitmap | Not supported | Not supported | Not supported |
 | Noto Sans Symbols (`zsym`) | TrueType outlines | Works | Works | Works |
+| Noto Sans Symbols 2 (`zsym2`) | TrueType outlines | Works | Works | Works |
 
 The color emoji spec (CBDT/CBLC) stores pre-rendered PNG bitmaps at specific sizes. Rendering them requires extracting the bitmap from the font tables and blitting it as a texture — standard glyph rasterizers (ab_glyph, fontdue, rusttype, swash) skip these tables entirely.
 

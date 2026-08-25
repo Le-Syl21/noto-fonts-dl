@@ -136,8 +136,8 @@
   "tzm": "NotoSansTifinagh-Regular.ttf",
   "ugar": "NotoSansUgaritic-Regular.ttf",
   "ur": "NotoNastaliqUrdu-Regular.ttf",
-  "vi": "NotoSans-VF.ttf",
   "vaii": "NotoSansVai-Regular.ttf",
+  "vi": "NotoSans-VF.ttf",
   "vith": "NotoSansVithkuqi-VF.ttf",
   "wara": "NotoSansWarangCiti-Regular.ttf",
   "wcho": "NotoSansWancho-Regular.ttf",
@@ -149,5 +149,6 @@
   "zh": "NotoSansCJK-Regular.ttc",
   "zh_tw": "NotoSansCJK-Regular.ttc",
   "zsye": "NotoColorEmoji.ttf",
-  "zsym": "NotoSansSymbols-VF.ttf"
+  "zsym": "NotoSansSymbols-VF.ttf",
+  "zsym2": "NotoSansSymbols2-Regular.ttf"
 }

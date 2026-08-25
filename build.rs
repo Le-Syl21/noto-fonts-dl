@@ -108,6 +108,17 @@ fn download_font(feature: &str, filename: &str) -> Vec<u8> {
         return download_url(url);
     }
 
+    // Noto Sans Symbols 2 has no variable build, so the slim-variable-ttf
+    // fallback below cannot find it, and Google Fonts spells the family
+    // "Noto Sans Symbols 2" — the name derived below would ask for
+    // "Symbols2" and get nothing. Go straight to the per-family ttf tree.
+    if filename.starts_with("NotoSansSymbols2") {
+        let url = format!(
+            "https://github.com/notofonts/noto-fonts/raw/main/unhinted/ttf/NotoSansSymbols2/{filename}"
+        );
+        return download_url(&url);
+    }
+
     // Try Google Fonts CSS API first (gives optimized/subset fonts)
     let font_name = filename
         .replace("-VF.ttf", "")
