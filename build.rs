@@ -134,9 +134,25 @@ fn download_font(feature: &str, filename: &str) -> Vec<u8> {
         return data;
     }
 
-    // Fallback: download directly from notofonts GitHub
-    let url = format!("{}{}", NOTO_GITHUB_BASE, filename);
-    download_url(&url)
+    // Fallback: download directly from notofonts GitHub. The slim-variable
+    // tree only has `-VF` builds, so a static `-Regular` family (Nastaliq
+    // Urdu) lives in the per-family ttf tree instead.
+    let family = filename.split('-').next().unwrap_or(filename);
+    let candidates = [
+        format!("{NOTO_GITHUB_BASE}{filename}"),
+        format!("{NOTO_GITHUB_BASE}{family}-VF.ttf"),
+        format!(
+            "https://github.com/notofonts/noto-fonts/raw/main/unhinted/ttf/{family}/{filename}"
+        ),
+    ];
+    let mut errors = Vec::new();
+    for url in &candidates {
+        match fetch(url) {
+            Ok(data) => return data,
+            Err(e) => errors.push(e),
+        }
+    }
+    panic!("Failed to download {filename}:\n  {}", errors.join("\n  "))
 }
 
 fn download_cjk_font(feature: &str) -> Vec<u8> {
@@ -175,14 +191,37 @@ fn try_google_fonts(css_url: &str) -> Result<Vec<u8>, String> {
         .and_then(|s| s.split(')').next())
         .ok_or_else(|| "No font URL in CSS".to_string())?;
 
-    Ok(download_url(url))
+    fetch(url)
 }
 
 fn download_url(url: &str) -> Vec<u8> {
+    fetch(url).unwrap_or_else(|e| panic!("{e}"))
+}
+
+/// GET `url`, retrying a few times: one dropped connection on a CI runner
+/// should not fail the whole build.
+fn fetch(url: &str) -> Result<Vec<u8>, String> {
+    let mut last = String::new();
+    for attempt in 1u64..=3 {
+        if attempt > 1 {
+            std::thread::sleep(std::time::Duration::from_secs(2 * attempt));
+        }
+        match fetch_once(url) {
+            Ok(data) => return Ok(data),
+            Err(e) => {
+                eprintln!("cargo:warning=  attempt {attempt} failed: {e}");
+                last = e;
+            }
+        }
+    }
+    Err(last)
+}
+
+fn fetch_once(url: &str) -> Result<Vec<u8>, String> {
     eprintln!("cargo:warning=  GET {}", url);
     let mut resp = ureq::get(url)
         .call()
-        .unwrap_or_else(|e| panic!("Failed to download {}: {}", url, e));
+        .map_err(|e| format!("Failed to download {}: {}", url, e))?;
     let mut data = Vec::new();
     // ureq 3 caps a response body at 10 MB unless told otherwise. The CJK
     // fonts run past that, so lift the limit rather than truncate a font into
@@ -192,6 +231,6 @@ fn download_url(url: &str) -> Vec<u8> {
         .limit(64 * 1024 * 1024)
         .reader()
         .read_to_end(&mut data)
-        .unwrap_or_else(|e| panic!("Failed to read {}: {}", url, e));
-    data
+        .map_err(|e| format!("Failed to read {}: {}", url, e))?;
+    Ok(data)
 }
