@@ -174,7 +174,8 @@ fn try_google_fonts(css_url: &str) -> Result<Vec<u8>, String> {
     // Google Fonts serves a different CSS per user agent — it decides which
     // font format to point at from what it thinks the client supports. Ask as
     // a browser or it answers with woff2, which we cannot use.
-    let mut resp = ureq::get(css_url)
+    let mut resp = agent()
+        .get(css_url)
         .header("User-Agent", "Mozilla/5.0")
         .call()
         .map_err(|e| format!("CSS fetch failed: {}", e))?;
@@ -217,9 +218,20 @@ fn fetch(url: &str) -> Result<Vec<u8>, String> {
     Err(last)
 }
 
+/// An HTTP client that gives up. ureq waits forever by default, and a
+/// connection that stalls mid-body then hangs the whole build with no output.
+fn agent() -> ureq::Agent {
+    ureq::Agent::config_builder()
+        .timeout_connect(Some(std::time::Duration::from_secs(20)))
+        .timeout_global(Some(std::time::Duration::from_secs(180)))
+        .build()
+        .into()
+}
+
 fn fetch_once(url: &str) -> Result<Vec<u8>, String> {
     eprintln!("cargo:warning=  GET {}", url);
-    let mut resp = ureq::get(url)
+    let mut resp = agent()
+        .get(url)
         .call()
         .map_err(|e| format!("Failed to download {}: {}", url, e))?;
     let mut data = Vec::new();
