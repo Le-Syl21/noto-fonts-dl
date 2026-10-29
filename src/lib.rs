@@ -22,7 +22,7 @@
 
 use std::io::Read;
 use std::sync::OnceLock;
-use xz2::read::XzDecoder;
+use lzma_rust2::XzReader;
 
 /// The compressed font bundle, embedded at compile time
 const FONT_BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/fonts.bundle.xz"));
@@ -41,7 +41,7 @@ pub fn load_fonts() -> &'static Vec<Font> {
         }
 
         // Decompress XZ
-        let mut decoder = XzDecoder::new(FONT_BUNDLE);
+        let mut decoder = XzReader::new(FONT_BUNDLE, false);
         let mut raw = Vec::new();
         decoder
             .read_to_end(&mut raw)

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::io::{Read, Write};
-use xz2::write::XzEncoder;
+use lzma_rust2::{XzOptions, XzWriter};
 
 const FONTS_JSON: &str = include_str!("fonts.json");
 
@@ -83,7 +83,7 @@ fn main() {
     eprintln!("cargo:warning=Raw bundle size: {} bytes", raw.len());
 
     // Compress with XZ
-    let mut encoder = XzEncoder::new(Vec::new(), 6);
+    let mut encoder = XzWriter::new(Vec::new(), XzOptions::with_preset(6)).unwrap();
     encoder.write_all(&raw).unwrap();
     let compressed = encoder.finish().unwrap();
 
