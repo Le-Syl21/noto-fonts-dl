@@ -20,8 +20,8 @@
 //!
 //! Questions, bugs, beta testing — join the Discord: <https://discord.gg/T37DYHmt2j>
 
-use std::sync::OnceLock;
 use mbrotli::{DecoderConfig, Decompressor};
+use std::sync::OnceLock;
 
 /// The compressed font bundle, embedded at compile time
 const FONT_BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/fonts.bundle.br"));

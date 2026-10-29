@@ -1,6 +1,6 @@
+use mbrotli::{Compressor, EncoderConfig, Quality, Window};
 use std::collections::HashMap;
 use std::io::Read;
-use mbrotli::{Compressor, EncoderConfig, Quality, Window};
 
 const FONTS_JSON: &str = include_str!("fonts.json");
 

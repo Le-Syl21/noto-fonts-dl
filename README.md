@@ -185,7 +185,7 @@ The color emoji spec (CBDT/CBLC) stores pre-rendered PNG bitmaps at specific siz
 
 ## Compression: Brotli, in pure Rust
 
-Since 0.1.9 the bundle is compressed with Brotli (quality 11, 16 MiB window)
+Since 0.1.10 the bundle is compressed with Brotli (quality 11, 16 MiB window)
 by [`mbrotli`](https://crates.io/crates/mbrotli), a pure-Rust Brotli whose
 output matches Google's reference encoder. Up to 0.1.8 it was XZ through
 `xz2`, which builds and links liblzma, a C library.
@@ -195,7 +195,7 @@ Measured on a 23.7 MB bundle (Arabic, Bengali, Hindi and CJK fonts):
 | | Bundle | Decompression at startup | Compression at build time |
 |---|---|---|---|
 | XZ, preset 6 (0.1.8) | 12.28 MB | 1143 ms | 14 s |
-| Brotli, quality 11 (0.1.9) | 12.03 MB | 238 ms | 104 s |
+| Brotli, quality 11 (0.1.10) | 12.03 MB | 238 ms | 104 s |
 
 - **Startup is about 4.8 times faster**, for a slightly smaller bundle. This
   is the trade-off WOFF2 web fonts made when they chose Brotli.

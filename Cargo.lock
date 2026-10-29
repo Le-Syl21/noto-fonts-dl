@@ -1985,7 +1985,7 @@ dependencies = [
 
 [[package]]
 name = "noto-fonts-dl"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "eframe",
  "egui",
