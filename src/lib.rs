@@ -1,6 +1,6 @@
 //! # noto-fonts-dl
 //!
-//! Download Noto fonts at build time, compress them into a single Brotli bundle,
+//! Download Noto fonts at build time, compress them into a single XZ bundle,
 //! and decompress at runtime. Feature-gated per language.
 //!
 //! ## Usage
@@ -20,11 +20,12 @@
 //!
 //! Questions, bugs, beta testing — join the Discord: <https://discord.gg/T37DYHmt2j>
 
-use mbrotli::{DecoderConfig, Decompressor};
+use lzma_rust2::XzReader;
+use std::io::Read;
 use std::sync::OnceLock;
 
 /// The compressed font bundle, embedded at compile time
-const FONT_BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/fonts.bundle.br"));
+const FONT_BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/fonts.bundle.xz"));
 
 /// A loaded font: (name, font data)
 pub type Font = (String, Vec<u8>);
@@ -39,10 +40,11 @@ pub fn load_fonts() -> &'static Vec<Font> {
             return Vec::new();
         }
 
-        // Decompress Brotli
-        let raw = Decompressor::new(DecoderConfig::default())
-            .expect("Failed to create the Brotli decoder")
-            .decompress(FONT_BUNDLE)
+        // Decompress XZ
+        let mut decoder = XzReader::new(FONT_BUNDLE, false);
+        let mut raw = Vec::new();
+        decoder
+            .read_to_end(&mut raw)
             .expect("Failed to decompress font bundle");
 
         // Parse our minimal format

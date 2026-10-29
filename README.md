@@ -7,8 +7,8 @@
 Download and embed [Google Noto fonts](https://fonts.google.com/noto) at build time with Cargo feature flags. **134 languages/scripts supported** — just enable the ones you need.
 
 - Fonts are downloaded from Google Fonts at compile time (cached for subsequent builds)
-- All selected fonts are compressed together into a single Brotli bundle
-- Decompressed in memory at runtime with Brotli, in pure Rust: no C library is built into your binary
+- All selected fonts are compressed together into a single XZ bundle
+- Decompressed in memory at runtime, in pure Rust: no C library is built into your binary
 - Zero font files stored in the crate itself
 - Language-to-font mapping derived from [Android's official Noto configuration](https://github.com/notofonts/noto-fonts)
 
@@ -168,9 +168,9 @@ The color emoji spec (CBDT/CBLC) stores pre-rendered PNG bitmaps at specific siz
 1. **Build time**: `build.rs` reads `fonts.json` (a mapping from language codes to Noto font filenames, derived from Android's official configuration)
 2. **Download**: For each enabled feature, downloads the corresponding font from Google Fonts (with fallback to the notofonts GitHub repository for CJK)
 3. **Cache**: Downloaded fonts are cached in `OUT_DIR` — subsequent builds don't re-download
-4. **Compress**: All fonts are packed into a minimal binary format and compressed with Brotli at quality 11 (pure Rust, `mbrotli`)
+4. **Compress**: All fonts are packed into a minimal binary format and compressed with XZ, preset 6 (pure Rust, `lzma-rust2`)
 5. **Embed**: The compressed bundle is embedded in the binary via `include_bytes!`
-6. **Runtime**: `load_fonts()` decompresses the bundle on first call (about 0.25 s for a 24 MB bundle) and returns the font data. Cached via `OnceLock` for instant subsequent calls.
+6. **Runtime**: `load_fonts()` decompresses the bundle on first call (about 1 s for a 24 MB bundle) and returns the font data. Cached via `OnceLock` for instant subsequent calls.
 
 ## Bundle Sizes
 
@@ -183,37 +183,32 @@ The color emoji spec (CBDT/CBLC) stores pre-rendered PNG bitmaps at specific siz
 | `all-cjk` | ~23 MB | ~13 MB | ~13 MB |
 | `all-common` | ~28 MB | ~15 MB | ~15 MB |
 
-## Compression: Brotli, in pure Rust
+## Compression: XZ, in pure Rust
 
-Since 0.1.9 the bundle is compressed with Brotli (quality 11, 16 MiB window)
-by [`mbrotli`](https://crates.io/crates/mbrotli), a pure-Rust Brotli whose
-output matches Google's reference encoder. Up to 0.1.8 it was XZ through
-`xz2`, which builds and links liblzma, a C library.
+Since 0.1.10 the bundle is compressed and decompressed with
+[`lzma-rust2`](https://crates.io/crates/lzma-rust2), a pure-Rust XZ. Up to
+0.1.8 it was XZ through `xz2`, which builds and links liblzma, a C library.
 
-Measured on a 23.7 MB bundle (Arabic, Bengali, Hindi and CJK fonts):
-
-| | Bundle | Decompression at startup | Compression at build time |
-|---|---|---|---|
-| XZ, preset 6 (0.1.8) | 12.28 MB | 1143 ms | 14 s |
-| Brotli, quality 11 (0.1.9) | 12.03 MB | 238 ms | 104 s |
-
-- **Startup is about 4.8 times faster**, for a slightly smaller bundle. This
-  is the trade-off WOFF2 web fonts made when they chose Brotli.
-- **No C in your binary**: the code that ships, the decoder, is pure Rust.
-  The library no longer depends on any C library (no liblzma, no
-  `pkg-config`, no C compiler needed for the target), which also makes
-  cross-compiling simpler.
-- **The cost is at build time**: compressing a large bundle at quality 11
-  takes longer (about 100 s for CJK fonts). It runs again only when the set
-  of enabled fonts changes; the downloaded fonts stay cached.
+- **No C in your binary**: the bundle format and its size are the same as
+  0.1.8 (12.3 MB for 23.7 MB of Arabic, Bengali, Hindi and CJK fonts), and
+  the decoder that ships is pure Rust. No liblzma, no `pkg-config`, no C
+  compiler for the target, which also makes cross-compiling simpler.
+- **Build time**: Cargo builds build scripts without optimizations by
+  default, so the compression runs slower than an optimized build would:
+  about a minute for the CJK fonts, once per set of enabled fonts (the
+  downloaded fonts and the bundle stay cached).
 - At build time only, the downloader (`ureq` with `rustls`) uses `ring`,
   which compiles some C and assembly on the build machine. None of it ends
   up in your binary.
 
+0.1.9 used Brotli at quality 11. Because Cargo compiles build scripts
+without optimizations, that compression took hours for large bundles: do
+not use 0.1.9.
+
 ## Requirements
 
 - Internet connection at build time (first build only — fonts are cached)
-- No runtime dependency beyond `mbrotli` (pure Rust) for decompression
+- No runtime dependency beyond `lzma-rust2` (pure Rust) for decompression
 
 ## License
 
