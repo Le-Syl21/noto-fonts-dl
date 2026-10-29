@@ -1,6 +1,6 @@
 [package]
 name = "noto-fonts-dl"
-version = "0.1.10"
+version = "0.1.9"
 edition = "2021"
 description = "Download and embed Google Noto fonts at build time with Cargo feature flags. 134 languages/scripts supported. Fonts compressed with Brotli (pure Rust), decompressed at runtime."
 license = "MIT OR Apache-2.0"
@@ -180,5 +180,7 @@ ureq = "3"
 serde_json = "1"
 
 [dev-dependencies]
-eframe = "0.37"
+# The example only: glow (OpenGL) rather than eframe's default wgpu, whose
+# build is heavy enough to get CI's test job killed (0.37)
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
 egui = "0.37"
