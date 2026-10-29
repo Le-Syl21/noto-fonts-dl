@@ -1,8 +1,8 @@
 [package]
 name = "noto-fonts-dl"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
-description = "Download and embed Google Noto fonts at build time with Cargo feature flags. 134 languages/scripts supported. Fonts compressed with XZ (pure Rust), decompressed at runtime."
+description = "Download and embed Google Noto fonts at build time with Cargo feature flags. 134 languages/scripts supported. Fonts compressed with Brotli (pure Rust), decompressed at runtime."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Le-Syl21/noto-fonts-dl"
 keywords = ["font", "noto", "i18n", "egui", "unicode"]
@@ -170,14 +170,15 @@ all-indic = ["hi", "bn", "ta", "te", "kn", "ml", "gu", "pa", "or", "si"]
 all-cjk = ["ja", "ko", "zh", "zh_tw"]
 
 [dependencies]
-# XZ in pure Rust (no liblzma): the runtime decoder only
-lzma-rust2 = { version = "0.24", default-features = false, features = ["std", "xz", "optimization"] }
+# Brotli in pure Rust: decompresses the bundle several times faster than
+# XZ for a similar size (the reason WOFF2 fonts use it)
+mbrotli = "0.5.17"
 
 [build-dependencies]
-lzma-rust2 = "0.24"
+mbrotli = "0.5.17"
 ureq = "3"
 serde_json = "1"
 
 [dev-dependencies]
-eframe = "0.36"
-egui = "0.36"
+eframe = "0.37"
+egui = "0.37"

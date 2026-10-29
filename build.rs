@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::io::{Read, Write};
-use lzma_rust2::{XzOptions, XzWriter};
+use std::io::Read;
+use mbrotli::{Compressor, EncoderConfig, Quality, Window};
 
 const FONTS_JSON: &str = include_str!("fonts.json");
 
@@ -14,7 +14,7 @@ const NOTO_CJK_GITHUB_BASE: &str = "https://github.com/notofonts/noto-cjk/raw/ma
 
 fn main() {
     let out_dir = std::env::var("OUT_DIR").unwrap();
-    let bundle_path = std::path::Path::new(&out_dir).join("fonts.bundle.xz");
+    let bundle_path = std::path::Path::new(&out_dir).join("fonts.bundle.br");
 
     // Parse fonts.json: feature_name -> font_filename
     let font_map: HashMap<String, String> =
@@ -82,10 +82,11 @@ fn main() {
 
     eprintln!("cargo:warning=Raw bundle size: {} bytes", raw.len());
 
-    // Compress with XZ
-    let mut encoder = XzWriter::new(Vec::new(), XzOptions::with_preset(6)).unwrap();
-    encoder.write_all(&raw).unwrap();
-    let compressed = encoder.finish().unwrap();
+    // Compress with Brotli, at its best quality and largest standard window
+    let config = EncoderConfig::default()
+        .with_quality(Quality::try_from(11).unwrap())
+        .with_window(Window::standard(24).unwrap());
+    let compressed = Compressor::new(config).unwrap().compress(&raw).unwrap();
 
     eprintln!(
         "cargo:warning=Compressed bundle size: {} bytes (ratio: {:.0}%)",
