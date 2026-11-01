@@ -102,9 +102,11 @@ fn download_font(feature: &str, filename: &str) -> Vec<u8> {
         return download_cjk_font(feature);
     }
 
-    // Color Emoji — hosted in the noto-emoji repo, not noto-fonts
+    // Color Emoji — hosted in the noto-emoji repo, not noto-fonts. Pinned to
+    // a release: the file moved from fonts/ to 2D/fonts/ on main, which broke
+    // every build that asked for it.
     if filename.contains("Emoji") {
-        let url = "https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf";
+        let url = "https://github.com/googlefonts/noto-emoji/raw/v2026-09-24-unicode18_0/2D/fonts/NotoColorEmoji.ttf";
         return download_url(url);
     }
 
@@ -120,14 +122,7 @@ fn download_font(feature: &str, filename: &str) -> Vec<u8> {
     }
 
     // Try Google Fonts CSS API first (gives optimized/subset fonts)
-    let font_name = filename
-        .replace("-VF.ttf", "")
-        .replace("-Regular.ttf", "")
-        .replace("NotoLooped", "Noto+Looped+")
-        .replace("NotoNaskh", "Noto+Naskh+")
-        .replace("NotoNastaliq", "Noto+Nastaliq+")
-        .replace("NotoSerif", "Noto+Serif+")
-        .replace("NotoSans", "Noto+Sans+");
+    let font_name = google_fonts_family(filename);
 
     let css_url = format!("{}{}&display=swap", GOOGLE_FONTS_CSS, font_name);
     if let Ok(data) = try_google_fonts(&css_url) {
@@ -153,6 +148,32 @@ fn download_font(feature: &str, filename: &str) -> Vec<u8> {
         }
     }
     panic!("Failed to download {filename}:\n  {}", errors.join("\n  "))
+}
+
+/// The Google Fonts family of a Noto file name, words joined by `+`:
+/// `NotoSansCaucasianAlbanian-Regular.ttf` is "Noto Sans Caucasian Albanian".
+/// Each word starts where a capital follows a lowercase letter, so a family
+/// in several words is not asked for as one ("SyriacWestern" got nothing, and
+/// every such family fell back to the GitHub trees). Syriac Estrangela is
+/// the default style of the "Noto Sans Syriac" family, its name there.
+fn google_fonts_family(filename: &str) -> String {
+    let stem = filename
+        .trim_end_matches(".ttf")
+        .trim_end_matches("-VF")
+        .trim_end_matches("-Regular");
+    let mut out = String::new();
+    let mut prev_lower = false;
+    for c in stem.chars() {
+        if c.is_ascii_uppercase() && prev_lower {
+            out.push('+');
+        }
+        prev_lower = c.is_ascii_lowercase();
+        out.push(c);
+    }
+    if out == "Noto+Sans+Syriac+Estrangela" {
+        out.truncate("Noto+Sans+Syriac".len());
+    }
+    out
 }
 
 fn download_cjk_font(feature: &str) -> Vec<u8> {
