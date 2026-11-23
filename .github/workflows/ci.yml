@@ -14,7 +14,7 @@ env:
 jobs:
   verify:
     name: Verify
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
 
@@ -61,7 +61,7 @@ jobs:
     name: GitHub release
     needs: verify
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
@@ -82,7 +82,7 @@ jobs:
     # supprime rien) : elle passe donc APRÈS la release GitHub, révocable.
     needs: [verify, github-release]
     if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     environment: crates-io
     permissions:
       contents: read
